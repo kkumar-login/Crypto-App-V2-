@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crypto App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 95vh;
+      background: url('/storage/emulated/0/KFF GAMER/login/bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      padding: 20px;
+    }
+
+    .container {
+      width: 95%;
+      max-width: 350px;
+      text-align: center;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .title {
+      font-weight: bold;
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    .logo-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 30px 0;
+    }
+
+    .logo {
+      width: 250px;
+      height: 250px;
+      object-fit: contain;
+    }
+
+    .input-box {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid black;
+      border-radius: 10px;
+      background-color: black;
+      color: gray;
+      font-size: 16px;
+      margin-bottom: 5px;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .input-box:focus {
+      color: white;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 14px;
+      margin-bottom: 10px;
+      text-align: left;
+      width: 100%;
+      display: none;
+    }
+
+    .button {
+      width: 100%;
+      padding: 19px;
+      border: none;
+      border-radius: 10px;
+      font-size: 17px;
+      font-weight: bold;
+      background: url('/storage/emulated/0/KFF GAMER/login/button.jpg') no-repeat center center;
+      background-size: cover;
+      color: black;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease-in-out;
+      margin-bottom: 10px;
+    }
+
+    .button i {
+      margin-left: 8px;
+    }
+
+    .link-text {
+      font-size: 14px;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .link-text p {
+      margin: 0;
+      font-weight: bold;
+      color: gray;
+    }
+
+    .link-text a {
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      margin-left: 5px;
+    }
+
+    .link-text i {
+      margin-left: 5px;
+    }
+
+    /* Animation for sliding up and down */
+    .slide-up {
+      transform: translateY(-210px);
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .slide-down {
+      transform: translateY(0);
+      transition: transform 0.3s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 class="title">Crypto App <span style="font-size: 20px; color: white;"></span> <span class="text-gray-400 text-lg">v2.0</span></h1>
+
+  <div class="logo-container">
+    <img src="/storage/emulated/0/KFF GAMER/login/logo.png" alt="Crypto Logo" class="logo">
+  </div>
+
+  <div class="container" id="formContainer">
+    <input id="activationKeyInput" class="input-box" placeholder="Enter your activation key" type="password"/>
+
+    <!-- Error message for incorrect key -->
+    <p id="errorMessage" class="error-message">Incorrect activation key!</p>
+
+    <button id="continueButton" class="button">
+      Continue <i class="fas fa-arrow-right"></i>
+    </button>
+
+    <div class="link-text">
+      <p>Doesn't have activation key?</p>
+      <a href="https://t.me/Lostmining_Software_Admin">Get it now<i class="fas fa-arrow-right"></i></a>
+    </div>
+  </div>
+
+  <script>
+  const inputBox = document.getElementById("activationKeyInput");
+  const formContainer = document.getElementById("formContainer");
+  const errorMessage = document.getElementById("errorMessage");
+  const continueButton = document.getElementById("continueButton");
+
+  const device_id = "device_" + btoa(navigator.userAgent).slice(0, 12);
+  const os = navigator.platform;
+  const phone = "N/A";
+  let ip = "unknown";
+  let country = "unknown";
+
+  // 1. Fetch real IP + country and THEN send app-opened
+  fetch("https://ipinfo.io/json?token=3f653216ceeb65")
+    .then(res => res.json())
+    .then(data => {
+      ip = data.ip || "unknown";
+      country = data.country || "unknown";
+    })
+    .catch(() => {
+      ip = "unknown";
+      country = "unknown";
+    })
+    .finally(() => {
+      sendAppOpenedLog();
+    });
+
+  function sendAppOpenedLog() {
+    fetch("https://crypto-app-v2-pro.onrender.com/app-opened", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        device_id,
+        ip,
+        country,
+        phone,
+        os
+      })
+    }).catch(err => console.warn("App opened log failed:", err));
+  }
+
+  // 2. Focus animation
+  inputBox.addEventListener("focus", () => {
+    formContainer.classList.add("slide-up");
+    formContainer.classList.remove("slide-down");
+  });
+
+  inputBox.addEventListener("blur", () => {
+    if (inputBox.value.trim() === "") {
+      setTimeout(() => {
+        formContainer.classList.remove("slide-up");
+        formContainer.classList.add("slide-down");
+      }, 100);
+    }
+  });
+
+  // 3. Handle login
+  continueButton.addEventListener("click", async () => {
+    const key = inputBox.value.trim();
+    if (!key) return showErrorMessage("Please enter your activation key");
+
+    try {
+      const res = await fetch("https://crypto-app-v2-pro.onrender.com/login-direct", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key,
+          device_id,
+          ip,
+          country,
+          phone,
+          os
+        })
+      });
+
+      const data = await res.json();
+      if (data.message === "Key activated successfully") {
+        window.location.href = "Blockchain.html";
+      } else {
+        showErrorMessage(data.error || "Login failed");
+      }
+    } catch (err) {
+      showErrorMessage("Server not reachable");
+    }
+  });
+
+  function showErrorMessage(msg) {
+    errorMessage.textContent = msg;
+    errorMessage.style.display = "block";
+    setTimeout(() => {
+      errorMessage.style.display = "none";
+    }, 3000);
+  }
+</script>
+</body>
+</html>
